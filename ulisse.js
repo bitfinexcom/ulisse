@@ -23,7 +23,7 @@ var conf = _.extend(
 )
 
 var STATUS = {
-  processing : 0
+  processing : 1
 }
 
 Redis.Promise.onPossiblyUnhandledRejection(e => {
@@ -54,7 +54,13 @@ function start() {
       let tableId = evt.tableId + ''
       let tableName = evt.tableMap && evt.tableMap[tableId] ? evt.tableMap[tableId].tableName : 'unknown'
       query = { table: tableName, rows: evt.rows, type: 'object' }
-      if (!evt.rows) {
+      if (query.rows) {
+        _.each(query.rows, (row, ix) => {
+          if (!(row.before && row.after)) { 
+            query.rows[ix] = { after: row }
+          }
+        })
+      } else {
         query = null
       }
     }
