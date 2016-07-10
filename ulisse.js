@@ -4,8 +4,8 @@ const fs = require('fs')
 const _ = require('lodash')
 const program = require('commander')
 const async = require('async')
-const Redis = require('ioredis')
 const ZongJi = require('zongji')
+const lutils = require('./utils')
 
 program
   .version('0.0.1')
@@ -23,73 +23,50 @@ var conf = _.extend(
 )
 
 var STATUS = {
-  processing : 1
 }
 
-Redis.Promise.onPossiblyUnhandledRejection(e => {
-  STATUS.processing = 0
-  console.log(e)
-})
-
-var redis = Redis.createClient(conf.redis, {
-  dropBufferSupport: true
-})
-
-redis.on('error', e => {
-  STATUS.processing = 0
-  console.log(e)
-})
+var rc_sub = lutils.redis_cli(conf.redis)
+var rc_pub = lutils.redis_cli(conf.redis)
 
 var cli = null
 
-function start() {
-  cli = new ZongJi(conf.mysql)
+cli = new ZongJi(conf.mysql)
 
-  cli.on('binlog', function(evt) {
-    let query = null
+cli.on('binlog', function(evt) {
+  let query = null
 
-    if (evt.query) {
-      query = { text: evt.query.replace(/\\/gm, ''), type: 'string' }
+  if (evt.query) {
+    query = { text: evt.query.replace(/\\/gm, ''), type: 'statement' }
+  } else {
+    let tableId = evt.tableId + ''
+    let tableName = evt.tableMap && evt.tableMap[tableId] ? evt.tableMap[tableId].tableName : 'unknown'
+    query = { table: tableName, rows: evt.rows, type: 'row' }
+    if (query.rows) {
+      _.each(query.rows, (row, ix) => {
+        if (!row.before && !row.after) { 
+          query.rows[ix] = { before: row }
+        }
+      })
     } else {
-      let tableId = evt.tableId + ''
-      let tableName = evt.tableMap && evt.tableMap[tableId] ? evt.tableMap[tableId].tableName : 'unknown'
-      query = { table: tableName, rows: evt.rows, type: 'object' }
-      if (query.rows) {
-        _.each(query.rows, (row, ix) => {
-          if (!(row.before && row.after)) { 
-            query.rows[ix] = { after: row }
-          }
-        })
-      } else {
-        query = null
-      }
+      query = null
     }
-
-    if (!query) return
-
-    redis.publish(conf.dest, JSON.stringify(query))
-  })
-
-  function zerror(e) {
-    console.error(e)
-    cli.stop()
-    setTimeout(function() {
-      cli = null
-    }, 2500)
   }
 
-  cli.on('error', zerror)
-  cli.ctrlConnection.on('error', zerror)
+  if (!query) return
 
-  cli.start({
-    startAtEnd: true,
-    includeEvents: ['query', 'rotate', 'tablemap', 'writerows', 'updaterows', 'deleterows']
-  })
+  console.log(JSON.stringify(query))
+  rc_pub.publish(conf.dest, JSON.stringify(query))
+})
+
+function zerror(e) {
+  console.error(e)
+  cli.stop()
 }
 
-setInterval(function() {
-  if (cli) return
-  start()
-}, 5000)
+cli.on('error', zerror)
+cli.ctrlConnection.on('error', zerror)
 
-start()
+cli.start({
+  startAtEnd: true,
+  includeEvents: ['query', 'rotate', 'tablemap', 'writerows', 'updaterows', 'deleterows']
+})
