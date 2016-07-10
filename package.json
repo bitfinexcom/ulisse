@@ -1,0 +1,42 @@
+{
+  "name": "ulisse",
+  "version": "0.0.1",
+  "private": false,
+  "description": "Ulisse",
+  "author": {
+    "name": "prdn",
+    "email": "paolo@bitfinex.com"
+  },
+  "keywords": [
+    "bitfinex"
+  ],
+  "dependencies": {
+    "async": "~2.0.0-rc.6",
+    "commander": "^2.9.0",
+    "ioredis": "~2.2.0",
+    "lodash": "~4.13.1",
+    "minimist": "^1.2.0",
+    "through2": "~2.0.1",
+    "underscore.string": "^3.3.4",
+    "zongji": "~0.4.2"
+  },
+  "engine": {
+    "node": ">=0.10"
+  },
+  "main": "index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitfinexcom/ulisse.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bitfinexcom/ulisse/issues"
+  },
+  "homepage": "https://github.com/bitfinexcom/ulisse",
+  "maintainers": [
+    {
+      "name": "prdn",
+      "email": "paolo@bitfinex.com"
+    }
+  ]
+}
