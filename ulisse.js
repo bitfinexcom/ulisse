@@ -37,11 +37,14 @@ binlog.start()
 
 binlog.on('action', evts => {
   var rpl = []
+
   _.each(evts, evt => {
     rpl.push(['publish', conf.dest, JSON.stringify(evt)])
   })
 
-  rc_pub.pipeline(rpl).exec()
+  rc_pub.pipeline(rpl).exec((err) => {
+    if (err) console.error(err)
+  })
 })
   
 rc_sub.on('message', (channel, msg) => {
