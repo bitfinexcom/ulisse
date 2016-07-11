@@ -35,8 +35,13 @@ var binlog = new Binlog({
 
 binlog.start()
 
-binlog.on('action', evt => {
-  rc_pub.publish(conf.dest, JSON.stringify(evt))
+binlog.on('action', evts => {
+  var rpl = []
+  _.each(evts, evt => {
+    rpl.push(['publish', conf.dest, JSON.stringify(evt)])
+  })
+
+  rc_pub.pipeline(rpl).exec()
 })
   
 rc_sub.on('message', (channel, msg) => {
