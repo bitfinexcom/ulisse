@@ -3,7 +3,6 @@
 const Redis = require('ioredis')
 
 Redis.Promise.onPossiblyUnhandledRejection(e => {
-  STATUS.processing = 0
   console.log(e)
 })
 

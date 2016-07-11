@@ -4,7 +4,7 @@ const fs = require('fs')
 const _ = require('lodash')
 const program = require('commander')
 const async = require('async')
-const ZongJi = require('zongji')
+const Binlog = require('./lib/Binlog')
 const lutils = require('./utils')
 
 program
@@ -22,56 +22,47 @@ var conf = _.extend(
   JSON.parse(fs.readFileSync(__dirname + '/' + program.conf, 'UTF8'))
 )
 
-var STATUS = {
+if (!conf.id) {
+  conf.id = 1
 }
 
 var rc_sub = lutils.redis_cli(conf.redis)
 var rc_pub = lutils.redis_cli(conf.redis)
 
-var cli = null
+var binlog = new Binlog({
+  mysql: conf.mysql
+})
 
-cli = new ZongJi(conf.mysql)
+binlog.start()
 
-cli.on('binlog', function(evt) {
-  let query = null
+binlog.on('dbs', data => {
+  rc_pub.publish(conf.dest, { a: 'dbs', o: data })
+})
+  
+binlog.on('dbe', data => {
+  rc_pub.publish(conf.dest, { a: 'dbe', o: data })
+})
 
-  if (evt.query) {
-    query = { text: evt.query.replace(/\\/gm, ''), type: 'statement' }
-  } else {
-    let tableId = evt.tableId + ''
-    let tableName = evt.tableMap && evt.tableMap[tableId] ? evt.tableMap[tableId].tableName : 'unknown'
-    query = { table: tableName, rows: evt.rows, type: 'row' }
-    if (query.rows) {
-      _.each(query.rows, (row, ix) => {
-        if (!row.before && !row.after) { 
-          query.rows[ix] = { before: row }
-        }
-      })
-    } else {
-      query = null
-    }
+rc_sub.on('message', (channel, msg) => {
+  try {
+    msg = JSON.parse(msg)
+  } catch(e) {
+    console.error(e, msg)
+    msg = null
   }
 
-  if (!query) return
+  if (!msg) return
 
-  console.log(JSON.stringify(query))
-  rc_pub.publish(conf.dest, JSON.stringify(query))
+  console.log('COMMAND', msg)
+  handleCommand(msg)
 })
 
-function zerror(e) {
-  console.error(e)
-  cli.stop()
+var handleCommand = (msg) => {
+  switch (msg.action) {
+    case 'snap':
+      binlog.snap.apply(binlog, msg.args)
+    break
+  }
 }
 
-cli.on('error', zerror)
-cli.ctrlConnection.on('error', zerror)
-
-cli.start({
-  startAtEnd: true,
-  includeEvents: ['query', 'rotate', 'tablemap', 'writerows', 'updaterows', 'deleterows']
-})
-
-rc_sub.subscribe('ulisse', (msg) => {
-  msg = JSON.parse(msg)
-  console.log(msg)
-})
+rc_sub.subscribe('ulisse:' + conf.id)

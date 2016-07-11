@@ -15,7 +15,9 @@
     "commander": "^2.9.0",
     "ioredis": "~2.2.0",
     "lodash": "~4.13.1",
-    "through2": "~2.0.1",
+    "mysql": "^2.11.1",
+    "mysql2": "^1.0.0-rc.7",
+    "through2": "^2.0.1",
     "underscore.string": "^3.3.4",
     "zongji": "~0.4.2"
   },
