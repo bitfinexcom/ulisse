@@ -7,7 +7,9 @@ Redis.Promise.onPossiblyUnhandledRejection(e => {
 })
 
 var redis_cli = (conf, label = 'default') => {
-  var redis = Redis.createClient(conf)
+  var redis = Redis.createClient(conf, {
+    dropBufferSupport: true
+  })
 
   redis.on('error', e => {
     console.error('RedisCli error:', label, e)
