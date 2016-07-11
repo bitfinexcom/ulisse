@@ -35,14 +35,10 @@ var binlog = new Binlog({
 
 binlog.start()
 
-binlog.on('dbs', data => {
-  rc_pub.publish(conf.dest, { a: 'dbs', o: data })
+binlog.on('action', evt => {
+  rc_pub.publish(conf.dest, JSON.stringify(evt))
 })
   
-binlog.on('dbe', data => {
-  rc_pub.publish(conf.dest, { a: 'dbe', o: data })
-})
-
 rc_sub.on('message', (channel, msg) => {
   try {
     msg = JSON.parse(msg)
