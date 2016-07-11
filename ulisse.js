@@ -70,3 +70,8 @@ cli.start({
   startAtEnd: true,
   includeEvents: ['query', 'rotate', 'tablemap', 'writerows', 'updaterows', 'deleterows']
 })
+
+rc_sub.subscribe('ulisse', (msg) => {
+  msg = JSON.parse(msg)
+  console.log(msg)
+})
