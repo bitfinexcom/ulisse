@@ -26,6 +26,16 @@ if (!conf.id) {
   conf.id = 1
 }
 
+var qout = async.queue((job, cb) => {
+  var rpl = []
+
+  _.each(job.data, evt => {
+    rpl.push(['publish', conf.dest, JSON.stringify(evt)])
+  })
+
+  rc_pub.pipeline(rpl).exec(cb)
+})
+
 var rc_sub = lutils.redis_cli(conf.redis)
 var rc_pub = lutils.redis_cli(conf.redis)
 
@@ -36,15 +46,7 @@ var binlog = new Binlog({
 binlog.start()
 
 binlog.on('action', evts => {
-  var rpl = []
-
-  _.each(evts, evt => {
-    rpl.push(['publish', conf.dest, JSON.stringify(evt)])
-  })
-
-  rc_pub.pipeline(rpl).exec((err) => {
-    if (err) console.error(err)
-  })
+  qout.push({ data: evts })
 })
   
 rc_sub.on('message', (channel, msg) => {
