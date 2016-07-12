@@ -4,7 +4,7 @@ const fs = require('fs')
 const _ = require('lodash')
 const program = require('commander')
 const async = require('async')
-const Binlog = require('./lib/Binlog')
+const Ulisse = require('./lib/Ulisse')
 const lutils = require('./utils')
 
 program
@@ -17,7 +17,7 @@ if (!program.conf) {
   program.conf = 'config.json'
 }
 
-var conf = _.extend(
+const conf = _.extend(
   {},
   JSON.parse(fs.readFileSync(__dirname + '/' + program.conf, 'UTF8'))
 )
@@ -26,34 +26,31 @@ if (!conf.id) {
   conf.id = 1
 }
 
-var qout = async.queue((job, cb) => {
+const qout = async.queue((job, cb) => {
   if (job.data.length === 1) {
-    let evt = job.data[0]
+    const evt = job.data[0]
     rc_pub.publish(conf.dest, JSON.stringify(evt), cb)
   } else {
-    let rpl = []
+    const rpl = []
 
     _.each(job.data, evt => {
       rpl.push(['publish', conf.dest, JSON.stringify(evt)])
     })
 
-    rc_pub.pipeline(rpl).exec(cb, err => {
-      if (err) console.error(err)
-      setImmediate(cb)
-    })
+    rc_pub.pipeline(rpl).exec(cb)
   }
 })
 
-var rc_sub = lutils.redis_cli(conf.redis)
-var rc_pub = lutils.redis_cli(conf.redis)
+const rc_sub = lutils.redis_cli(conf.redis)
+const rc_pub = lutils.redis_cli(conf.redis)
 
-var binlog = new Binlog({
+const ulisse = new Ulisse({
   mysql: conf.mysql
 })
 
-binlog.start()
+ulisse.start()
 
-binlog.on('action', evts => {
+ulisse.on('action', evts => {
   _.each(_.chunk(evts, 10), chunk => {
     qout.push({ data: chunk })
   })
@@ -76,7 +73,7 @@ rc_sub.on('message', (channel, msg) => {
 var handleCommand = (msg) => {
   switch (msg.action) {
     case 'snap':
-      binlog.snap.apply(binlog, msg.args)
+      ulisse.snap.apply(ulisse, msg.args)
     break
   }
 }
