@@ -8,7 +8,7 @@ const Ulisse = require('./lib/Ulisse')
 const lutils = require('./utils')
 
 program
-  .version('0.0.1')
+  .version('0.0.3')
   .option('-c, --conf <val>', 'configuration file')
   .option('--debug', 'debug')
   .parse(process.argv)
