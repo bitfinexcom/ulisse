@@ -7,19 +7,25 @@ const async = require('async')
 const Ulisse = require('./lib/Ulisse')
 const lutils = require('./utils')
 
-program
-  .version('0.0.3')
-  .option('-c, --conf <val>', 'configuration file')
-  .option('--debug', 'debug')
-  .parse(process.argv)
-
-if (!program.conf) {
-  program.conf = 'config.json'
-}
+const cli = require('yargs')
+  .option('conf', {
+    alias: 'c',
+    default: 'config.json',
+    describe: 'configuration file path',
+    demand: true
+  })
+  .option('debug', {
+    describe: 'debug',
+    default: false
+  })
+  .boolean('debug')
+  .help('help')
+  .usage('Usage: $0 -c <val>')
+  .argv
 
 const conf = _.extend(
   {},
-  JSON.parse(fs.readFileSync(__dirname + '/' + program.conf, 'UTF8'))
+  JSON.parse(fs.readFileSync(__dirname + '/' + cli.conf, 'UTF8'))
 )
 
 if (!conf.id) {
