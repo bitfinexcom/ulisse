@@ -2,7 +2,6 @@
 
 const fs = require('fs')
 const _ = require('lodash')
-const program = require('commander')
 const async = require('async')
 const Ulisse = require('./lib/Ulisse')
 const lutils = require('./utils')
@@ -12,13 +11,14 @@ const program = require('yargs')
     alias: 'c',
     default: 'config.json',
     describe: 'configuration file path',
-    demand: true
+    demand: true,
+    type: 'string'
   })
   .option('debug', {
     describe: 'debug',
-    default: false
+    default: false,
+    type: 'boolean'
   })
-  .boolean('debug')
   .help('help')
   .version()
   .usage('Usage: $0 -c <val>')
