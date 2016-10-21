@@ -20,6 +20,7 @@ const cli = require('yargs')
   })
   .boolean('debug')
   .help('help')
+  .version()
   .usage('Usage: $0 -c <val>')
   .argv
 
