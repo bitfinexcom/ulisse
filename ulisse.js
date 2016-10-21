@@ -7,7 +7,7 @@ const async = require('async')
 const Ulisse = require('./lib/Ulisse')
 const lutils = require('./utils')
 
-const cli = require('yargs')
+const program = require('yargs')
   .option('conf', {
     alias: 'c',
     default: 'config.json',
@@ -26,7 +26,7 @@ const cli = require('yargs')
 
 const conf = _.extend(
   {},
-  JSON.parse(fs.readFileSync(__dirname + '/' + cli.conf, 'UTF8'))
+  JSON.parse(fs.readFileSync(__dirname + '/' + program.conf, 'UTF8'))
 )
 
 if (!conf.id) {
