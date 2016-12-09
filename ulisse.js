@@ -70,7 +70,7 @@ ulisse.start()
 
 ulisse.on('action', (t, evts) => {
   const out = qout(t)
-  _.each(_.chunk(evts, 50), chunk => {
+  _.each(_.chunk(evts, 25), chunk => {
     out.push({ data: chunk })
   })
 })
