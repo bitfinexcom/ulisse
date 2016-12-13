@@ -35,29 +35,38 @@ if (!conf.id) {
 
 const QOUT = {}
 
-var qout = (t) => {
+function qout(t, data) {
   t = t || 'default'
-  
-  if (QOUT[t]) return QOUT[t]
+  if (!QOUT[t]) QOUT[t] = []
+  _.each(data, d => {
+    QOUT[t].push(d)
+  })
+}
 
-  const out = async.queue((job, cb) => {
-    if (job.data.length === 1) {
-      const evt = job.data[0]
-      rc_pub.publish(conf.dest, JSON.stringify(evt), cb)
-    } else {
-      const rpl = []
+function flush() {
+  const rpl = []
 
-      _.each(job.data, evt => {
-        rpl.push(['publish', conf.dest, JSON.stringify(evt)])
-      })
+  _.each(QOUT, (evts, k) => {
+    if (!evts.length) return
 
-      rc_pub.pipeline(rpl).exec(cb)
-    }
+    const data = evts.splice(0, 50)
+
+    _.each(data, d => {
+      rpl.push(['publish', conf.dest, JSON.stringify(d)])
+    })
   })
 
-  QOUT[t] = out
-  return out
+  if (!rpl.length) {
+    setTimeout(flush, 10)
+    return
+  }
+
+  rc_pub.pipeline(rpl).exec(() => {
+    setImmediate(flush)
+  })
 }
+
+flush()
 
 const rc_sub = lutils.redis_cli(conf.redis)
 const rc_pub = lutils.redis_cli(conf.redis)
@@ -69,10 +78,7 @@ const ulisse = new Ulisse({
 ulisse.start()
 
 ulisse.on('action', (t, evts) => {
-  const out = qout(t)
-  _.each(_.chunk(evts, 25), chunk => {
-    out.push({ data: chunk })
-  })
+  qout(t, evts)
 })
   
 rc_sub.on('message', (channel, msg) => {
