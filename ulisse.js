@@ -71,9 +71,7 @@ flush()
 const rc_sub = lutils.redis_cli(conf.redis)
 const rc_pub = lutils.redis_cli(conf.redis)
 
-const ulisse = new Ulisse({
-  mysql: conf.mysql
-})
+const ulisse = new Ulisse(_.pick(conf, ['mysql', 'forwardStatements', 'filterTables']))
 
 ulisse.start()
 
