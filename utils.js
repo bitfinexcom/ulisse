@@ -6,8 +6,8 @@ Redis.Promise.onPossiblyUnhandledRejection(e => {
   console.log(e)
 })
 
-var redis_cli = (conf, label = 'default') => {
-  var redis = Redis.createClient(conf)
+const cliRedis = (conf, label = 'default') => {
+  const redis = Redis.createClient(conf)
 
   redis.on('error', e => {
     console.error('RedisCli error:', label, e)
@@ -17,5 +17,5 @@ var redis_cli = (conf, label = 'default') => {
 }
 
 module.exports = {
-  redis_cli: redis_cli
+  redis_cli: cliRedis
 }

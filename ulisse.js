@@ -1,8 +1,7 @@
 'use strict'
 
-const fs = require('fs')
+const path = require('path')
 const _ = require('lodash')
-const async = require('async')
 const Ulisse = require('./lib/Ulisse')
 const lutils = require('./utils')
 
@@ -26,7 +25,7 @@ const program = require('yargs')
 
 const conf = _.extend(
   {},
-  JSON.parse(fs.readFileSync(__dirname + '/' + program.conf, 'UTF8'))
+  require(path.join(__dirname, '/', program.conf))
 )
 
 if (!conf.id) {
@@ -35,7 +34,7 @@ if (!conf.id) {
 
 const QOUT = {}
 
-function qout(t, data) {
+function qout (t, data) {
   t = t || 'default'
   if (!QOUT[t]) QOUT[t] = []
   _.each(data, d => {
@@ -43,7 +42,7 @@ function qout(t, data) {
   })
 }
 
-function flush() {
+function flush () {
   const rpl = []
 
   _.each(QOUT, (evts, k) => {
@@ -61,15 +60,15 @@ function flush() {
     return
   }
 
-  rc_pub.pipeline(rpl).exec(() => {
+  pubRc.pipeline(rpl).exec(() => {
     setImmediate(flush)
   })
 }
 
 flush()
 
-const rc_sub = lutils.redis_cli(conf.redis)
-const rc_pub = lutils.redis_cli(conf.redis)
+const subRc = lutils.redis_cli(conf.redis)
+const pubRc = lutils.redis_cli(conf.redis)
 
 const ulisse = new Ulisse(_.pick(conf, ['mysql', 'forwardStatements', 'filterTables']))
 
@@ -78,11 +77,11 @@ ulisse.start()
 ulisse.on('action', (t, evts) => {
   qout(t, evts)
 })
-  
-rc_sub.on('message', (channel, msg) => {
+
+subRc.on('message', (channel, msg) => {
   try {
     msg = JSON.parse(msg)
-  } catch(e) {
+  } catch (e) {
     console.error(e, msg)
     msg = null
   }
@@ -97,8 +96,8 @@ var handleCommand = (msg) => {
   switch (msg.action) {
     case 'snap':
       ulisse.snap.apply(ulisse, msg.args)
-    break
+      break
   }
 }
 
-rc_sub.subscribe('ulisse:' + conf.id)
+subRc.subscribe('ulisse:' + conf.id)
