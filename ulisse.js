@@ -78,6 +78,13 @@ ulisse.on('action', (t, evts) => {
   qout(t, evts)
 })
 
+ulisse.on('error-critical', (err) => {
+  console.error('CRITICAL', err)
+  if (conf.exitOnError) {
+    process.exit(-1)
+  }
+})
+
 subRc.on('message', (channel, msg) => {
   try {
     msg = JSON.parse(msg)
@@ -92,7 +99,7 @@ subRc.on('message', (channel, msg) => {
   handleCommand(msg)
 })
 
-var handleCommand = (msg) => {
+const handleCommand = (msg) => {
   switch (msg.action) {
     case 'snap':
       ulisse.snap.apply(ulisse, msg.args)
