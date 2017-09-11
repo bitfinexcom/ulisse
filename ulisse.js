@@ -37,9 +37,10 @@ const QOUT = {}
 function qout (t, data) {
   t = t || 'default'
   if (!QOUT[t]) QOUT[t] = []
-  _.each(data, d => {
-    QOUT[t].push(d)
-  })
+
+  for (let i = 0; i < data.length; i++) {
+    QOUT[t].push(data[i])
+  }
 }
 
 function flush () {
@@ -50,9 +51,9 @@ function flush () {
 
     const data = evts.splice(0, 50)
 
-    _.each(data, d => {
-      rpl.push(['publish', conf.dest, JSON.stringify(d)])
-    })
+    for (let i = 0; i < data.length; i++) {
+      rpl.push(['publish', conf.dest, JSON.stringify(data[i])])
+    }
   })
 
   if (!rpl.length) {

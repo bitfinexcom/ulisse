@@ -1,6 +1,6 @@
 {
   "name": "ulisse",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "private": false,
   "description": "Ulisse: MySQL row streamer",
   "author": {
@@ -12,7 +12,7 @@
   ],
   "dependencies": {
     "async": "~2.5.0",
-    "ioredis": "^3.1.1",
+    "ioredis": "^3.1.4",
     "lodash": "^4.17.4",
     "mysql": "^2.13.0",
     "yargs": "^6.3.0",
