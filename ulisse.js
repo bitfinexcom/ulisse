@@ -47,9 +47,11 @@ function flush () {
   const rpl = []
 
   _.each(QOUT, (evts, k) => {
-    if (!evts.length) return
+    if (!evts.length) {
+      return
+    }
 
-    const data = evts.splice(0, 50)
+    const data = evts.splice(0, 250)
 
     for (let i = 0; i < data.length; i++) {
       rpl.push(['publish', conf.dest, JSON.stringify(data[i])])
@@ -57,7 +59,7 @@ function flush () {
   })
 
   if (!rpl.length) {
-    setTimeout(flush, 10)
+    setTimeout(flush, 100)
     return
   }
 
