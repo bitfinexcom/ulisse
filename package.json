@@ -1,6 +1,6 @@
 {
   "name": "ulisse",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "private": false,
   "description": "Ulisse: MySQL row streamer",
   "author": {
@@ -19,7 +19,7 @@
     "zongji": "^0.4.4"
   },
   "engine": {
-    "node": ">=0.10"
+    "node": ">=8.0"
   },
   "main": "index.js",
   "license": "MIT",
