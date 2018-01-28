@@ -11,10 +11,10 @@
     "bitfinex"
   ],
   "dependencies": {
-    "async": "~2.5.0",
-    "ioredis": "^3.1.4",
+    "async": "~2.6.0",
+    "ioredis": "^3.2.2",
     "lodash": "^4.17.4",
-    "mysql": "^2.13.0",
+    "mysql": "^2.15.0",
     "yargs": "^6.3.0",
     "zongji": "^0.4.4"
   },
