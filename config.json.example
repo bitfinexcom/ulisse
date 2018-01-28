@@ -10,5 +10,7 @@
     "user": "",
     "password": ""
   },
-  "dest": "DESTCHANNEL"
+  "dest": "DESTCHANNEL",
+  "snapRelaxedFlushTimeout": 5000,
+  "exitOnError": true
 }
