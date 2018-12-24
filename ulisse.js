@@ -51,7 +51,7 @@ function flush () {
       return
     }
 
-    const data = evts.splice(0, 50)
+    const data = evts.splice(0, 25)
 
     for (let i = 0; i < data.length; i++) {
       rpl.push(['publish', conf.dest, JSON.stringify(data[i])])
@@ -65,7 +65,7 @@ function flush () {
 
   pubRc.pipeline(rpl).exec(() => {
     const relaxed = (Date.now() - ulisse._snapTs) < (conf.snapRelaxedFlushTimeout || 30000)
-    setTimeout(flush, relaxed ? 25 : 3)
+    setTimeout(flush, relaxed ? 25 : 5)
   })
 }
 
