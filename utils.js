@@ -2,10 +2,6 @@
 
 const Redis = require('ioredis')
 
-Redis.Promise.onPossiblyUnhandledRejection(e => {
-  console.log(e)
-})
-
 const cliRedis = (conf, label = 'default') => {
   const redis = Redis.createClient(conf)
 
