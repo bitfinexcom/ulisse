@@ -59,13 +59,13 @@ function flush () {
   })
 
   if (!rpl.length) {
-    setTimeout(flush, 50)
+    setTimeout(flush, 15)
     return
   }
 
   pubRc.pipeline(rpl).exec(() => {
     const relaxed = (Date.now() - ulisse._snapTs) < (conf.snapRelaxedFlushTimeout || 30000)
-    setTimeout(flush, relaxed ? 25 : 2)
+    setTimeout(flush, relaxed ? 25 : 3)
   })
 }
 
