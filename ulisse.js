@@ -51,7 +51,7 @@ function flush () {
       return
     }
 
-    const data = evts.splice(0, 100)
+    const data = evts.splice(0, 150)
 
     for (let i = 0; i < data.length; i++) {
       rpl.push(['publish', conf.dest, JSON.stringify(data[i])])
