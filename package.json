@@ -1,6 +1,6 @@
 {
   "name": "ulisse",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "private": false,
   "description": "Ulisse: MySQL row streamer",
   "author": {
@@ -21,7 +21,13 @@
   "engine": {
     "node": ">=8.0"
   },
-  "main": "index.js",
+  "bin": {
+    "caron": "bin/ulisse.js"
+  },
+  "scripts": {
+    "lint": "standard"
+  },
+  "main": "bin/ulisse.js",
   "license": "MIT",
   "repository": {
     "type": "git",

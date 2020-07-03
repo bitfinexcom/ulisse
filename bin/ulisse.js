@@ -2,8 +2,8 @@
 
 const path = require('path')
 const _ = require('lodash')
-const Ulisse = require('./lib/Ulisse')
-const lutils = require('./utils')
+const Ulisse = require('../lib/Ulisse')
+const lutils = require('../utils')
 
 const program = require('yargs')
   .option('conf', {
@@ -25,7 +25,7 @@ const program = require('yargs')
 
 const conf = _.extend(
   {},
-  require(path.join(__dirname, '/', program.conf))
+  require(path.join(__dirname, '../', program.conf))
 )
 
 if (!conf.id) {
