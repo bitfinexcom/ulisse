@@ -9,6 +9,13 @@ const cliRedis = (conf, label = 'default') => {
     console.error('RedisCli error:', label, e)
   })
 
+  redis._pinger = setInterval(() => {
+    if (redis.status !== 'ready') {
+      return
+    }
+    redis.ping()
+  }, 15000)
+
   return redis
 }
 
